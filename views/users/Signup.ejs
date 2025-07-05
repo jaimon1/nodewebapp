@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compact Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(51, 51, 51);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .card {
+            background-color: white;
+            color: rgb(51, 51, 51);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 350px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-google {
+            background-color: white;
+            color: rgb(51, 51, 51);
+            border: 1px solid rgb(209, 0, 36);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 14px;
+            padding: 6px;
+        }
+
+        .btn-google:hover {
+            background-color: rgb(209, 0, 36);
+            color: white;
+        }
+
+        .btn-primary {
+            background-color: rgb(209, 0, 36);
+            border: none;
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            background-color: rgb(180, 0, 30);
+        }
+
+        .form-control {
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        label {
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        p {
+            font-size: 13px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2 class="text-center mb-2">Sign Up</h2>
+        <% if (msg) { %>
+            <p class="text-center text-danger fw-bold">
+                <%= msg %>
+            </p>
+            <% } %>
+
+                <a href="/auth/google" class="btn btn-google w-100 mb-2"><img
+                        src="https://developers.google.com/identity/images/g-logo.png" width="18"> Continue with
+                    Google</a>
+                <div class="text-center text-muted mb-2" style="font-size: 12px;">or</div>
+
+                <form action="/register" method="post" id="formSubmission">
+                    <div class="mb-2">
+                        <label for="fullname" class="form-label">Full Name</label>
+                        <input type="text" name="username" class="form-control" id="fullname" placeholder="Full name"
+                            required>
+                        <div id="error1" class="error-message"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" id="email" placeholder="Email" required>
+                        <div id="error2" class="error-message"></div>
+
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" name="phone" id="phone" placeholder="Phone" required>
+                        <div id="error3" class="error-message"></div>
+
+                    </div>
+                    <div class="mb-2">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password"
+                            required>
+                        <div id="error4" class="error-message"></div>
+
+                    </div>
+                    <div class="mb-2">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword"
+                            placeholder="Confirm" required>
+                        <div id="error5" class="error-message"></div>
+
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-1">Register</button>
+                </form>
+                <p class="text-center mt-2">Already have an account? <a href="#"
+                        style="color: rgb(209, 0, 36); text-decoration: none;">Sign In</a></p>
+    </div>
+
+    <script>
+        const userId = document.getElementById('fullname');
+        const emailId = document.getElementById('email');
+        const phoneId = document.getElementById('phone');
+        const passId = document.getElementById('password');
+        const passId2 = document.getElementById('confirmPassword');
+        const error1Id = document.getElementById('error1');
+        const error2Id = document.getElementById('error2');
+        const error3Id = document.getElementById('error3');
+        const error4Id = document.getElementById('error4');
+        const error5Id = document.getElementById('error5');
+        const formSubId = document.getElementById('formSubmission');
+
+        function nameValidation() {
+            let nameValue = userId.value;
+            let namePattern = /^[A-Za-z\s]+$/;
+            if (nameValue.trim() === "") {
+                error1Id.style.display = "block";
+                error1Id.innerHTML = "Enter a Username";
+            } else if (!namePattern.test(nameValue)) {
+                error1Id.style.display = "block";
+                error1Id.innerHTML = "Name can only Contain Alphabets only";
+            } else {
+                error1Id.style.display = "none";
+                error1Id.innerHTML = "";
+            }
+        };
+
+        function emailValidation() {
+            const email = emailId.value;
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)) {
+                error2Id.style.display = "block";
+                error2Id.innerHTML = "Invalid Email"
+            } else {
+                error2Id.style.display = "none";
+                error2Id.innerHTML = "";
+            }
+        }
+
+        function phoneValidation() {
+            const phone = phoneId.value;
+
+            if (phone.trim() === "") {
+                error3Id.style.display = "block";
+                error3Id.innerHTML = "Invalid Phone Number";
+            } else if (phone.length < 10 || phone.length > 10) {
+                error3Id.style.display = "block";
+                error3Id.innerHTML = "Invalid Phone Number";
+            } else {
+                error3Id.style.display = "none";
+                error3Id.innerHTML = "";
+            }
+        }
+        function passwordValidation() {
+            const password1 = passId.value.trim();
+            const password2 = passId2.value.trim();
+            const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+            let errorMessage = "";
+
+            if (!strongPasswordPattern.test(password1)) {
+                errorMessage = "Password must be at least 8 characters, including uppercase, lowercase, digit, and special character.";
+            } else if (password1 !== password2) {
+                errorMessage = "Password not Match";
+            }
+
+            if (errorMessage) {
+                error4Id.style.display = "block";
+                error4Id.innerHTML = errorMessage;
+                error5Id.style.display = "block";
+                error5Id.innerHTML = errorMessage;
+            } else {
+                error4Id.style.display = "none";
+                error4Id.innerHTML = "";
+                error5Id.style.display = "none";
+                error5Id.innerHTML = "";
+            }
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            formSubId.addEventListener('submit', (e) => {
+
+                nameValidation();
+                emailValidation();
+                phoneValidation();
+                passwordValidation();
+
+                if (
+                    !userId ||
+                    !emailId ||
+                    !phoneId ||
+                    !passId ||
+                    !passId2 ||
+                    !error1Id ||
+                    !error2Id ||
+                    !error3Id ||
+                    !error4Id ||
+                    !error5Id ||
+                    !formSubId
+                ) {
+                    console.log("One or more Elements are not Found");
+                }
+                if (
+                    error1Id.innerHTML ||
+                    error2Id.innerHTML ||
+                    error3Id.innerHTML ||
+                    error4Id.innerHTML ||
+                    error5Id.innerHTML
+                ) {
+                    e.preventDefault();
+                }
+            })
+
+            userId.addEventListener('blur', nameValidation);
+            emailId.addEventListener('blur', emailValidation);
+            passId2.addEventListener('blur', passwordValidation);
+            phoneId.addEventListener('blur', phoneValidation);
+        })
+
+
+
+
+    </script>
+</body>
+
+</html>

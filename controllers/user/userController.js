@@ -1,23 +1,159 @@
-
-
-const pageNotFound = async (req,res)=>{
-    try{
+const User = require('../../models/userSchema');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+const bcrypt = require('bcrypt');
+const pageNotFound = async (req, res) => {
+    try {
         res.render('pageNotFound');
-    }catch(error){
+    } catch (error) {
         res.redirect('/page-not-found');
     }
 }
 
 const loadHomepage = async (req, res) => {
     try {
-         res.render('index');
+        res.render('index');
     } catch (error) {
         console.log('Home page not found');
-         res.status(500).send('Server not Found');
+        res.status(500).send('Server not Found');
+    }
+};
+const loadregisterPage = async (req, res) => {
+    try {
+        res.render('Signup',{msg:null});
+    } catch (error) {
+        console.log('Error occured on register page');
+        res.status(500).send("Server not found");
     }
 }
 
+function genarateOtp() {
+    return Math.floor(100000 + Math.random() * 900000);
+}
+
+async function sendMailVerification(email, otp, name) {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.EMAIL_ADDRESS,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_ADDRESS,
+            to: email,
+            subject: "Email Verification",
+            text: `Your OTP is ${otp}`,
+            html: `Hi <b>${name} I'm a Proffessional Web Developer <b>JAIMON A A</b> </b> <b>Your One Time Password is ${otp}</b>`
+        });
+
+        return info.accepted.length > 0;
+
+    } catch (error) {
+        console.log("Something went wrong while sending email to the user");
+        return false;
+    }
+}
+
+const registration = async (req, res) => {
+    try {
+        const { username, phone, email, password, confirmPassword } = req.body;
+
+        if (password !== confirmPassword) {
+           return res.render('Signup', { msg: "Password do not match" })
+        }
+
+        const emailAlreadyExists = await User.findOne({ email });
+
+        if (emailAlreadyExists) {
+           return res.render('Signup', { msg: "Email Already Exists" });
+        }
+
+        let otp = genarateOtp();
+
+        let emailSend = sendMailVerification(email, otp, username);
+        if (!emailSend) {
+            res.json("email Error");
+        }
+        req.session.userOtp = otp;
+        req.session.userData = { username, phone, email, password };
+
+        res.render('otpVerify');
+        console.log(`otp Sent Successfully ${otp}`);
+    } catch (error) {
+        console.log(`An Error occured ${error}`);
+        res.redirect('/page-not-found');
+    }
+
+}
+
+async function secretPassword(password) {
+    const hashedPassword = await bcrypt.hash(password,10);
+    return hashedPassword;
+}
+const verifyOtp = async function (req, res) {
+    try {
+        const { otp } = req.body;
+        console.log(req.session.userOtp);
+        console.log(otp);
+    if (req.session.userOtp == otp) {
+        const user = req.session.userData;
+        const hashedPassword = await secretPassword(user.password);
+        const newUser = new User({
+            name: user.username,
+            password: hashedPassword,
+            email: user.email,
+            phone: user.phone
+        });
+         await newUser.save();
+         req.session.user = newUser._id;
+         res.status(200).json({success:true,message:"OTP Verifyied", redirectUrl:"/"});
+    }else{
+        res.status(400).json({success:false,msg:"Invalid OTP"});
+    }
+    } catch (error) {
+        console.log(`Error Veryfying OTP ${error} `);
+        res.status(500).json({success:false,mag:"An Error Occured"});
+    }
+}
+
+const resendOtp = async function(req,res) {
+    try {
+        const { email,username } = req.session.userData;
+        
+    if(!email){
+        res.json({success:false,msg:"Email not Found in the session"});
+    }
+
+    const otp = genarateOtp();
+
+    const resendEmail = sendMailVerification(email,otp,username);
+
+    if(resendEmail){
+        req.session.userOtp = otp;
+        res.status(200).json({success:true,msg:"email resend successfully"});
+        console.log("Otp Resend",otp);
+
+    }else{
+        res.status(400).json({success:false,msg:"Otp Not Send Invalid Email Address"});
+        console.log("Otp Resinding unsuccessfull");
+    }
+    } catch (error) {
+        res.status(400).json({success:false,msg:"Server Not Found"});
+        console.log("An error Occured",error);
+    }
+}
+
+
 module.exports = {
     loadHomepage,
-    pageNotFound
+    pageNotFound,
+    loadregisterPage,
+    registration,
+    verifyOtp,
+    resendOtp
 }
