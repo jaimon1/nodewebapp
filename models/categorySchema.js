@@ -9,6 +9,11 @@ const categorySchema = new Schema({
         type:String,
         required:true,
     },
+    slug: {
+        type: String,
+        required: true,
+        default: null
+    },
     isListed: {
         type:Boolean,
         default:true

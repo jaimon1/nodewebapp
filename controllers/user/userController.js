@@ -176,7 +176,7 @@ const loginRegister = async (req, res) => {
             return res.render('login', { msg: "User Not Exists" })
         }
         if (findUser.isBlocked) {
-            return res.render('login', { msg: "User Blocked by Admin" })
+            return res.render('login', { msg: "User Blocked by Jaimon" })
         }
         const comparePassword = await bcrypt.compare(password, findUser.password)
         if (!comparePassword) {
