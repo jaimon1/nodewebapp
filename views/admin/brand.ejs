@@ -1,0 +1,74 @@
+<%-include("../../views/parsuals/admin/header")%>
+    <!-- Main Content -->
+    <div class="col-md-10 p-0">
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <a href="/admin/createBrand" class="btn btn-primary">Add Brand</a>
+            <h4 class="m-0">Brand Management</h4>
+            <form action="/admin/brand" method="GET" class="d-flex w-25">
+                <input type="text" class=" p-form-control me-2 rounded " placeholder="Search Brands...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+        </div>
+
+        <div class="p-4">
+            <!-- Add Brand Form -->
+            <!-- Brand List Table -->
+            <div class="card p-4">
+                <h5>Brand List</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Logo</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% brandData.reverse().forEach((brand,index)=>{%>
+                                <!-- Example static rows, replace with dynamic data -->
+                                <tr>
+                                    <td><img src="/uploads/re-images/<%= brand.BrandImage %>"
+                                            style="width: 100px; height: 100px; object-fit: contain;"
+                                            class="img-fluid rounded shadow-sm bg-white p-2" alt="<%= brand.name %>"></td>
+                                    <td>
+                                        <%= brand.name %>
+                                    </td>
+                                    <%if(brand.isBlocked === true) { %>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                    <%}else{ %>
+                                    <td><span class="badge bg-danger">Inactive</span></td>
+                                        <% } %>
+                                    <td>
+                                        <%if(brand.isBlocked === true) { %>
+                                        <a href="/admin/blockBrand?id=<%=brand._id%>&page=<%=currentPages%>" class="btn btn-sm btn-danger ">Block</a>
+                                        <% } else {%>
+                                        <a href="/admin/unBlockBrand?id=<%=brand._id%>&page=<%=currentPages%>" class="btn btn-sm btn-success ">UnBlock</a>
+                                            <% } %>
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination justify-content-center mt-3">
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <%-include("../../views/parsuals/admin/footer")%>

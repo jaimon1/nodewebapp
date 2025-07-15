@@ -1,0 +1,98 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+
+    <div class="col-md-10 p-5">
+        <div class="card p-4 mb-4">
+            <h5>Add New Brand</h5>
+            <form action="/admin/createBrand" method="POST" enctype="multipart/form-data"
+                onsubmit="return submitForm(event)" class="mt-3">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Brand Name</label>
+                        <input type="text" class="form-control" name="name" id="brandName"
+                            placeholder="Enter brand name">
+                        <div class="error" id="name-error"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Logo</label>
+                        <input type="file" class="form-control" name="logo" id="brandLogo" accept="image/*">
+                        <div class="error" id="image-error"></div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" type="submit">Add Brand</button>
+            </form>
+        </div>
+    </div>
+    </div>
+    </div>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlparams = new URLSearchParams(window.location.search);
+            if (urlparams.get('brandadded') === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Brand Added',
+                    text: "The Brand was Added Successfully",
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(data=>{
+                    window.location.href = window.location.pathname;
+                })
+            }
+                else if(urlparams.get('brandadded') === 'exists'){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Brand Added Failed',
+                    text: "Brand Already Exists",
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(data=>{
+                    window.location.href = window.location.pathname;
+                })
+            }
+        })
+
+        function submitForm(event) {
+            if (!validate()) {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+
+        function validate() {
+            clearAllError();
+            const brandName = document.getElementById("brandName").value.trim();
+            const brandImage = document.getElementById("brandLogo");
+            let isValid = true;
+
+            if (brandImage.files.length === 0) {
+                displayError("image-error", "Image is required");
+                isValid = false;
+            }
+
+            if (brandName === "" || !/^[a-zA-Z\s]+$/.test(brandName)) {
+                displayError("name-error", "Enter a valid brand name");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function displayError(elementId, errorMessage) {
+            const errorField = document.getElementById(elementId);
+            errorField.innerHTML = errorMessage;
+        }
+
+        function clearAllError() {
+            const errors = document.querySelectorAll(".error");
+            errors.forEach(e => e.innerHTML = "");
+        }
+
+    </script>
+
+
+
+
+    <%-include("../../views/parsuals/admin/footer")%>
