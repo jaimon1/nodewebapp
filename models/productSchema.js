@@ -20,19 +20,19 @@ const productSchema = new Schema({
         required: true,
     },
     regularPrice: {
-        type:number,
+        type:Number,
         required:true
     },
     salePrice:{
-        type: number,
+        type: Number,
         required:true
     },
     productOffer: {
-        type:number,
+        type:Number,
         default: 0
     },
     quantity:{
-        type: number,
+        type: Number,
         default: true
     },
     color:{

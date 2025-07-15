@@ -5,8 +5,9 @@
         <div class="topbar d-flex justify-content-between align-items-center">
             <a href="/admin/addCategory" class="btn btn-primary">Add Category</a>
             <h4 class="m-0">Category Management</h4>
-            <form action="/admin/users" method="GET" class="d-flex w-25">
-                <input type="text" name="search" class="form-control me-2" placeholder="Search Users...">
+            <form action="/admin/category" method="GET" class="d-flex w-25">
+                <input type="text" name="search" class="form-control me-2" placeholder="Search Users..."
+                    value="<%= search || '' %>">
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
@@ -19,10 +20,11 @@
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th>Sl No</th>
+
                                 <th>Name</th>
-                                <th>Slug</th>
                                 <th>Description</th>
+                                <th>Category Offer</th>
+                                <th>Add Or Remove</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -31,29 +33,43 @@
                             <% for(let i=0; i< cat.length;i++) { %>
                                 <tr>
                                     <td>
-                                        <%= i + 1%>
-                                    </td>
-                                    <td>
                                         <%= cat[i].name %>
-                                    </td>
-                                    <td>
-                                        <%= cat[i].slug %>
                                     </td>
                                     <td>
                                         <%= cat[i].description %>
                                     </td>
+                                    <td>
+                                        <% if(cat[i].categoryOffer) { %>
+                                            <%= cat[i].categoryOffer %>%
+                                                <% } else { %>
+                                                    0%
+                                                    <% } %>
+
+                                    </td>
+                                    <td>
+                                        <% if(cat[i].categoryOffer===0){ %>
+                                            <a href="#" class="btn btn-sm btn-success"
+                                                onclick="addOffer('<%= cat[i]._id %>')">Add Offer</a>
+                                            <% } else { %>
+                                                <a href="#" class="btn btn-sm btn-danger"
+                                                    onclick="removeOffer('<%= cat[i]._id %>')">Remove Offer</a>
+                                                <% } %>
+
+                                    </td>
                                     <% if(cat[i].isListed===true) { %>
                                         <td><a class="text-decoration-none btn btn-sm btn-success"
-                                                href="/admin/List?id=<%=cat[i]._id%>">listed</a></td>
+                                                href="/admin/List?id=<%=cat[i]._id%>&page=<%= currentPage %>">listed</a>
+                                        </td>
                                         <% } else { %>
                                             <td><a class="text-decoration-none btn btn-sm btn-danger"
-                                                    href="/admin/unList?id=<%=cat[i]._id%>">unlisted</a></td>
+                                                    href="/admin/unList?id=<%=cat[i]._id%>&page=<%= currentPage %>">unlisted</a>
+                                            </td>
 
                                             <% } %>
                                                 <td>
-                                                    <button class="btn btn-sm btn-warning"><i
-                                                            class="fas fa-edit"></i></button>
-                                                    <a href="/admin/deleteCategory?id=<%=cat[i]._id%>"
+                                                    <a href="/admin/addCategory?id=<%= cat[i]._id %>"
+                                                        class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                                                    <a href="/admin/deleteCategory?id=<%=cat[i]._id%>&page=<%= currentPage %>"
                                                         class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
                                                 </td>
                                 </tr>
@@ -66,18 +82,26 @@
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mt-3">
                         <% if(currentPage> 1) {%>
-                            <li class="page-item"><a href="?page=<%= currentPage - 1 %>" class="page-link">Previous</a></li>
+                            <li class="page-item"><a
+                                    href="?page=<%= currentPage - 1 %><%= search? '&search=' + search : '' %>"
+                                    class="page-link">Previous</a></li>
                             <% } else { %>
                                 <li class="page-item disabled"><a class="page-link">Previous</a></li>
                                 <% } %>
-                                <% for(let i=1;i <= totalPages; i++) {%>
-                                    <li class="page-item <%= currentPage == i ? 'active' : '' %>"><a class="page-link" href="?page=<%= i %>"><%= i %></a></li>
-                                    <% } %>
-                                    <% if(currentPage < totalPages) { %>
-                                    <li class="page-item"><a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a></li>
-                                    <% } else {%>
-                                    <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                                    <% for(let i=1;i <=totalPages; i++) {%>
+                                        <li class="page-item <%= currentPage == i ? 'active' : '' %>"><a
+                                                class="page-link" href="?page=<%= i %>">
+                                                <%= i %>
+                                            </a></li>
                                         <% } %>
+                                            <% if(currentPage < totalPages) { %>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="?page=<%= currentPage + 1 %><%= search? '&search=' + search : '' %>">Next</a>
+                                                </li>
+                                                <% } else {%>
+                                                    <li class="page-item disabled"><a class="page-link"
+                                                            href="#">Next</a></li>
+                                                    <% } %>
                     </ul>
                 </nav>
             </div>
@@ -88,6 +112,84 @@
     </div>
     </div>
 
+    <script>
+        async function addOffer(categoryId) {
+            const { value: amount } = await Swal.fire({
+                title: "Offer in Percentage",
+                input: "number",
+                inputLabel: "Percentage",
+                inputPlaceholder: "%"
+            });
+
+            if (amount) {
+                try {
+                    let responce = await fetch("/admin/addCatedoryOffer", {
+                        method: "POST",
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            percentage: amount,
+                            categoryId: categoryId
+                        }),
+                    });
+                    const data = await responce.json();
+                    if(responce.ok && data.status === true){
+                        Swal.fire(
+                            "Offer Added",
+                            "Offer Added SuccessFully",
+                            "success"
+                        )
+                        .then(data=>{
+                            location.reload()
+                        })
+                    }else{
+                        Swal.fire('Failed',data.message || "Adding Offer Failed",'error')
+                    }
+                } catch (error) {
+                    Swal.fire(
+                        "Error",
+                        "An Error Occered While Adding the Offer",
+                        "error"
+                    )
+                    console.log("Error While Adding the Offer",error);
+                }
+            }
+        }
+
+        async function removeOffer(categoryId){
+           try {
+             const responce = await fetch("/admin/removeCategoryOffer",{
+                method:"POST",
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({categoryId:categoryId})
+            });
+
+            const data = await responce.json();
+            if(responce.ok && data.status === true){
+                Swal.fire(
+                    "Offer Removed",
+                    "Offer removed Successfully",
+                    "success"
+                ).then(data=>{
+                    location.reload();
+                })
+            }else{
+                Swal.fire("Failed",data.message || "Offer Removal Faild","error")
+            }
+           } catch (error) {
+            Swal.fire(
+                "Error",
+                "Offer Removal Unsuccessfull while removing",
+                "error"
+            );
+            console.log("An Error occured While Removing the Offer");
+           }
+        }
+
+    </script>
 
 
     <%-include("../../views/parsuals/admin/footer")%>

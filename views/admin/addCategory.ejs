@@ -1,28 +1,40 @@
 <%-include("../../views/parsuals/admin/header")%>
     <div class="col-md-10 p-5">
         <div class="card p-4">
-            <h5>Add New Category</h5>
-            <form id="categoryForm" class="mt-3" onsubmit="return handleFormSubmission(event)">
-                <div class="col-md-6 mb-3">
-                    <label for="categoryName" class="form-label">Category Name</label>
-                    <input type="text" id="categoryName" name="categoryName" class="form-control"
-                        placeholder="Enter category name" />
-                    <div class="error" id="name-Error"></div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="slug" class="form-label">Slug</label>
-                    <input type="text" id="slug" name="slug" class="form-control" placeholder="Enter slug" />
-                    <div class="error" id="slug-Error"></div>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea id="description" name="description" rows="3" class="form-control"
-                        placeholder="Enter category description"></textarea>
-                    <div class="error" id="description-Error"></div>
-                </div>
-
-                <button type="submit" class="btn btn-primary mt-3">Add Category</button>
-            </form>
+            <% if(category) { %>
+                <h5>Update Category</h5>
+                <% } else { %>
+                    <h5>Add New Category</h5>
+                    <% } %>
+                        <form id="categoryForm" class="mt-3" onsubmit="return handleFormSubmission(event)">
+                            <div class="col-md-6 mb-3">
+                                <% if (category) { %>
+                                    <input type="hidden" id="id" name="id" value="<%= category._id %>">
+                                    <% } %>
+                                        <label for="categoryName" class="form-label">Category Name</label>
+                                        <input type="text" id="categoryName" name="categoryName" class="form-control"
+                                            placeholder="Enter category name"
+                                            value="<%= category? category.name : '' %>" />
+                                        <div class="error" id="name-Error"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="slug" class="form-label">Slug</label>
+                                <input type="text" id="slug" name="slug" class="form-control" placeholder="Enter slug"
+                                    value="<%= category? category.slug : '' %>" />
+                                <div class="error" id="slug-Error"></div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea id="description" name="description" rows="3" class="form-control"
+                                    placeholder="Enter category description"><%= category? category.description : '' %></textarea>
+                                <div class="error" id="description-Error"></div>
+                            </div>
+                            <% if(category) { %>
+                                <button type="submit" class="btn btn-primary mt-3">Update Category</button>
+                                <% } else { %>
+                                    <button type="submit" class="btn btn-primary mt-3">Add Category</button>
+                                    <% } %>
+                        </form>
         </div>
     </div>
     </div>
@@ -39,13 +51,14 @@
             const categoryName = document.getElementById("categoryName").value.trim();
             const slug = document.getElementById("slug").value.trim();
             const description = document.getElementById("description").value.trim();
-
+            const idElement = document.getElementById('id');
+            const id = idElement ? idElement.value.trim() : null;
             fetch("/admin/addCategory", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ categoryName, slug, description })
+                body: JSON.stringify({ categoryName, slug, description, id })
             })
                 .then(response => {
                     if (!response.ok) {
@@ -56,15 +69,24 @@
                     return response.json();
                 })
                 .then(data => {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Category Added",
-                        text: "New category has been added successfully!",
-                    }).then(() => {
-                        // Clear form after success
-                        document.getElementById("categoryForm").reset();
-                        clearErrorMessages();
-                    });
+                    if (data.message === "Category Updated Successfully") {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Category Updated",
+                            text: "Category Updated successfully!",
+                            
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Category Added",
+                            text: "New category has been added successfully!",
+                        }).then(() => {
+                            // Clear form after success
+                            document.getElementById("categoryForm").reset();
+                            clearErrorMessages();
+                        });
+                    }
                 })
                 .catch(error => {
                     if (error.message === "Category Already Exists") {
@@ -73,7 +95,7 @@
                             title: "Oops",
                             text: "Category Already Exists",
                         });
-                    } else {
+                    } else if(err) {
                         Swal.fire({
                             icon: "error",
                             title: "Oops",
