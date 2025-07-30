@@ -17,7 +17,7 @@ const userPage = async (req, res) => {
             page = Number(req.query.page);
         }
         const userData = await User.find({
-            
+            isAdmin:false,
             $or: [
                 { name: { $regex: ".*" + search + ".*", $options: "i" } },
                 { email: { $regex: ".*" + search + ".*", $options: "i" } }
@@ -25,7 +25,7 @@ const userPage = async (req, res) => {
         }).limit(limit * 1).skip((page - 1) * limit).exec();
 
         const count = await User.find({
-
+            isAdmin:false,
             $or: [
                 { name: { $regex: ".*" + search + ".*" } },
                 { email: { $regex: ".*" + search + ".*" } }

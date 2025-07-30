@@ -1,5 +1,8 @@
 const User = require('../../models/userSchema');
+const Product = require('../../models/productSchema');
 const nodemailer = require('nodemailer');
+const Brand = require('../../models/brandSchema');
+const Category = require('../../models/categorySchema');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const pageNotFound = async (req, res) => {
@@ -12,10 +15,54 @@ const pageNotFound = async (req, res) => {
 
 const loadHomepage = async (req, res) => {
     try {
-        if (req.session.user|| req.user) {
-            res.render('index', { user: req.session.user || req.user });
+        const brandData = await Brand.find({
+            isBlocked: false,
+        })
+        const categoryData = await Category.find({
+            isListed : true,
+        })
+        const search = req.query.search || '';
+        const page = parseInt(req.query.page) || 1;
+        const limit = 6
+        const skip = (page - 1) * limit;
+        const existsProducts = await Product.find({
+            isBlocked: false,
+            category:{$in:categoryData.map(category=>category._id)},quantity:{$gt:0}
+        }).skip(skip).limit(limit).sort({ createdAt: -1 });
+
+        if(!existsProducts || existsProducts.length === 0 ){
+            console.log("No More Product Available");
+        }
+
+        const totalCount = await Product.countDocuments({
+            isBlocked: false,
+            $or: [{ productName: { $regex: ".*" + search + ".*", $options: "i" } }]
+        });
+
+        let totalPages = Math.ceil(totalCount / limit);
+
+
+        if (req.session.user || req.user) {
+            res.render('index', {
+                user: req.session.user || req.user,
+                totalPages: totalPages,
+                currentPage: page,
+                brandData:brandData,
+                categoryData: categoryData,
+                productData: existsProducts,
+                search: search
+
+            });
         } else {
-            res.render('index', { user: "" });
+            res.render('index', {
+                user: false,
+                brandData:brandData,
+                categoryData: categoryData,
+                totalPages: totalPages,
+                currentPage: page,
+                productData: existsProducts,
+                search: search
+            });
         }
     } catch (error) {
         console.log('Home page not found');
@@ -25,7 +72,7 @@ const loadHomepage = async (req, res) => {
 const loadregisterPage = async (req, res) => {
     try {
         if (!req.session.user) {
-            res.render('Signup',{msg:null});
+            res.render('Signup', { msg: null });
         }
     } catch (error) {
         console.log('Error occured on register page');
@@ -190,23 +237,35 @@ const loginRegister = async (req, res) => {
         res.redirect('/page-not-found');
     }
 }
-const logout = (req,res,next)=>{
-   try {
-     req.logout(function(err){
-        if(err){
-            return next(err);
-        }
-        req.session.destroy(function(err){
-            return next(err);
+const logout = (req, res, next) => {
+    try {
+        req.logout(function (err) {
+            if (err) {
+                return next(err);
+            }
+            req.session.destroy(function (err) {
+                return next(err);
+            })
+            res.clearCookie('connect.sid');
+            res.redirect('/login');
         })
-        res.clearCookie('connect.sid');
-        res.redirect('/login');
-    })
-   } catch (error) {
-    
-    console.log(error)
-   }
+    } catch (error) {
+
+        console.log(error)
+    }
 }
+
+const loadShopPage = async (req, res) => {
+    try {
+
+        res.render("shop")
+
+    } catch (error) {
+
+    }
+}
+
+
 
 module.exports = {
     loadHomepage,
@@ -217,5 +276,6 @@ module.exports = {
     resendOtp,
     loadLogin,
     loginRegister,
-    logout
+    logout,
+    loadShopPage
 }

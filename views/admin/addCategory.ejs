@@ -17,12 +17,12 @@
                                             value="<%= category? category.name : '' %>" />
                                         <div class="error" id="name-Error"></div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <!-- <div class="col-md-6 mb-3">
                                 <label for="slug" class="form-label">Slug</label>
                                 <input type="text" id="slug" name="slug" class="form-control" placeholder="Enter slug"
                                     value="<%= category? category.slug : '' %>" />
                                 <div class="error" id="slug-Error"></div>
-                            </div>
+                            </div> -->
                             <div class="col-12 mb-3">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea id="description" name="description" rows="3" class="form-control"
@@ -110,7 +110,6 @@
             let isValid = true;
 
             const name = document.getElementById("categoryName").value.trim();
-            const slug = document.getElementById("slug").value.trim();
             const description = document.getElementById("description").value.trim();
 
             if (!name) {
@@ -118,14 +117,6 @@
                 isValid = false;
             } else if (!/^[a-zA-Z\s]+$/.test(name)) {
                 displayError("name-Error", "Category Name should contain only alphabetic characters");
-                isValid = false;
-            }
-
-            if (!slug) {
-                displayError("slug-Error", "Please enter the slug");
-                isValid = false;
-            } else if (!/^[a-z0-9-]+$/.test(slug)) {
-                displayError("slug-Error", "Slug should contain only lowercase letters, numbers, and hyphens");
                 isValid = false;
             }
 

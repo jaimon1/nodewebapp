@@ -1,5 +1,6 @@
 const express = require('express');
 const userController = require('../../controllers/user/userController');
+const productController = require('../../controllers/user/productControler');
 const passport = require('passport');
 const router = express.Router();
 
@@ -13,6 +14,9 @@ router.post('/resendOtp',userController.resendOtp);
 router.get('/login',userController.loadLogin);
 router.post('/login',userController.loginRegister);
 router.get('/logout',userController.logout);
+
+router.get("/shop",productController.branding)
+router.get('/product/:id',productController.getProductDetails)
 
 
 
