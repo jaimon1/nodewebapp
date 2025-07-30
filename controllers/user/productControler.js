@@ -8,7 +8,7 @@ const branding = async(req,res)=>{
         const limit = parseInt(req.query.limit) || 12;
         const skip = (page - 1) * limit;
         
-        // Get search, sort, and filter parameters
+        
         const search = req.query.search || '';
         const sortBy = req.query.sort || 'newest';
         const category = req.query.category || '';
@@ -16,16 +16,15 @@ const branding = async(req,res)=>{
         const minPrice = parseFloat(req.query.minPrice) || 0;
         const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_VALUE;
         
-        // Get active categories and brands for filters
+        
         const categories = await Category.find({ isListed: true });
         const brands = await Brand.find({ isBlocked: false });
         
-        // Build query object
         let query = {
             isBlocked: false
         };
         
-        // Add search filter
+        
         if (search) {
             query.$or = [
                 { productName: { $regex: search, $options: 'i' } },
@@ -33,26 +32,26 @@ const branding = async(req,res)=>{
             ];
         }
         
-        // Add category filter
+        
         if (category) {
             query.category = category;
         }
         
-        // Add brand filter
+        
         if (brand) {
             query.brand = brand;
         }
         
-        // Get total count first for accurate pagination
+        
         const totalProducts = await Product.countDocuments(query);
         
-        // Get products with basic filtering
+        
         let products = await Product.find(query)
             .populate('category')
             .populate('brand')
             .sort({ createdAt: -1 });
         
-        // Add calculated fields for display
+        
         products = products.map(product => {
             const productObj = product.toObject();
             if (product.variants && product.variants.length > 0) {
@@ -68,14 +67,14 @@ const branding = async(req,res)=>{
             return productObj;
         });
         
-        // Filter by price range
+        
         if (minPrice > 0 || maxPrice < Number.MAX_VALUE) {
             products = products.filter(product => 
                 product.minVariantPrice >= minPrice && product.minVariantPrice <= maxPrice
             );
         }
         
-        // Sort products
+        
         switch (sortBy) {
             case 'price_asc':
                 products.sort((a, b) => a.minVariantPrice - b.minVariantPrice);
@@ -99,16 +98,16 @@ const branding = async(req,res)=>{
                 products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
         
-        // Apply pagination after filtering and sorting
+        
         const paginatedProducts = products.slice(skip, skip + limit);
         const totalPages = Math.ceil(products.length / limit);
         
-        // Check if it's an AJAX request
+        
         const isAjax = req.xhr || 
                       (req.headers.accept && req.headers.accept.indexOf('json') > -1) || 
                       req.headers['x-requested-with'] === 'XMLHttpRequest';
         
-        // If it's an AJAX request, return JSON
+       
         if (isAjax) {
             return res.json({
                 success: true,
@@ -121,7 +120,7 @@ const branding = async(req,res)=>{
             });
         }
         
-        // Render the shop page
+       
         res.render('shop', {
             user: req.session.user || req.user || null,
             products: paginatedProducts,
@@ -143,7 +142,7 @@ const branding = async(req,res)=>{
     } catch (error) {
         console.error('Error in product listing:', error);
         
-        // If it's an AJAX request, return JSON error
+        
         const isAjax = req.xhr || 
                       (req.headers.accept && req.headers.accept.indexOf('json') > -1) || 
                       req.headers['x-requested-with'] === 'XMLHttpRequest';
@@ -172,7 +171,7 @@ const getProductDetails = async (req, res) => {
             return res.status(404).render('pageNotFound');
         }
         
-        // Get related products
+        
         const relatedProducts = await Product.find({
             category: product.category._id,
             _id: { $ne: productId },
@@ -191,6 +190,8 @@ const getProductDetails = async (req, res) => {
         res.status(500).render('pageNotFound');
     }
 }
+
+
 
 module.exports = {
     branding,

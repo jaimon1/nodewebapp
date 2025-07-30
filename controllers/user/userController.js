@@ -5,6 +5,8 @@ const Brand = require('../../models/brandSchema');
 const Category = require('../../models/categorySchema');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
 const pageNotFound = async (req, res) => {
     try {
         res.render('pageNotFound');
@@ -27,7 +29,6 @@ const loadHomepage = async (req, res) => {
         const skip = (page - 1) * limit;
         const existsProducts = await Product.find({
             isBlocked: false,
-            category:{$in:categoryData.map(category=>category._id)},quantity:{$gt:0}
         }).skip(skip).limit(limit).sort({ createdAt: -1 });
 
         if(!existsProducts || existsProducts.length === 0 ){
@@ -170,8 +171,8 @@ const verifyOtp = async function (req, res) {
             res.status(400).json({ success: false, msg: "Invalid OTP" });
         }
     } catch (error) {
-        console.log(`Error Veryfying OTP ${error} `);
-        res.status(500).json({ success: false, mag: "An Error Occured" });
+        console.log(`Error Veryfying OTP ${error}`);
+        res.status(500).json({ success: false, mag: "An Error Occured"});
     }
 }
 
@@ -265,7 +266,296 @@ const loadShopPage = async (req, res) => {
     }
 }
 
+// Forgot Password Functions with OTP
+async function sendForgotPasswordOtp(email, otp, name) {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.EMAIL_ADDRESS,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+        
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_ADDRESS,
+            to: email,
+            subject: "Password Reset OTP",
+            text: `Your password reset OTP is ${otp}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">Password Reset OTP</h2>
+                    <p>Hi <strong>${name}</strong>,</p>
+                    <p>You requested to reset your password. Use the OTP below to proceed:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; display: inline-block;">
+                            <h1 style="color: #d10024; margin: 0; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
+                        </div>
+                    </div>
+                    <p><strong>This OTP will expire in 10 minutes.</strong></p>
+                    <p>If you didn't request this password reset, please ignore this email.</p>
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                    <p style="color: #666; font-size: 12px;">This email was sent by LapTique - Your Premium Laptop Store</p>
+                </div>
+            `
+        });
 
+        return info.accepted.length > 0;
+
+    } catch (error) {
+        console.log("Error sending forgot password OTP:", error);
+        return false;
+    }
+}
+
+const loadForgotPassword = async (req, res) => {
+    try {
+        if (req.session.user || req.user) {
+            return res.redirect('/');
+        }
+        res.render('forgotPassword', { msg: null, success: null });
+    } catch (error) {
+        console.log('Error loading forgot password page:', error);
+        res.redirect('/page-not-found');
+    }
+}
+
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        // Check if user exists
+        const user = await User.findOne({ email: email, isAdmin: 0 });
+        
+        if (!user) {
+            return res.render('forgotPassword', { 
+                msg: "No account found with this email address", 
+                success: null 
+            });
+        }
+
+        if (user.isBlocked) {
+            return res.render('forgotPassword', { 
+                msg: "Your account has been blocked. Please contact support.", 
+                success: null 
+            });
+        }
+
+        // Generate OTP
+        const otp = genarateOtp();
+
+        // Store OTP in session
+        req.session.forgotPasswordOtp = otp;
+        req.session.forgotPasswordEmail = email;
+        req.session.forgotPasswordOtpExpiry = Date.now() + 600000; // 10 minutes
+
+        // Send OTP email
+        const emailSent = await sendForgotPasswordOtp(email, otp, user.name);
+        
+        if (emailSent) {
+            console.log(`Forgot Password OTP sent: ${otp}`); // For development
+            res.render('forgotPasswordOtp');
+        } else {
+            res.render('forgotPassword', { 
+                msg: "Failed to send OTP. Please try again later.", 
+                success: null 
+            });
+        }
+
+    } catch (error) {
+        console.log('Error in forgot password:', error);
+        res.render('forgotPassword', { 
+            msg: "An error occurred. Please try again later.", 
+            success: null 
+        });
+    }
+}
+
+const verifyForgotPasswordOtp = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        
+        // Check if OTP session exists and is valid
+        if (!req.session.forgotPasswordOtp || !req.session.forgotPasswordEmail) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: "Session expired. Please start the process again." 
+            });
+        }
+
+        // Check if OTP has expired
+        if (Date.now() > req.session.forgotPasswordOtpExpiry) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: "OTP has expired. Please request a new one." 
+            });
+        }
+
+        // Verify OTP
+        if (req.session.forgotPasswordOtp == otp) {
+            // OTP is correct, allow password reset
+            req.session.forgotPasswordVerified = true;
+            res.status(200).json({ 
+                success: true, 
+                message: "OTP verified successfully", 
+                redirectUrl: "/reset-password-with-otp" 
+            });
+        } else {
+            res.status(400).json({ 
+                success: false, 
+                msg: "Invalid OTP. Please try again." 
+            });
+        }
+
+    } catch (error) {
+        console.log('Error verifying forgot password OTP:', error);
+        res.status(500).json({ 
+            success: false, 
+            msg: "An error occurred. Please try again." 
+        });
+    }
+}
+
+const resendForgotPasswordOtp = async (req, res) => {
+    try {
+        if (!req.session.forgotPasswordEmail) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: "Session expired. Please start the process again." 
+            });
+        }
+
+        const email = req.session.forgotPasswordEmail;
+        const user = await User.findOne({ email: email, isAdmin: 0 });
+
+        if (!user) {
+            return res.status(400).json({ 
+                success: false, 
+                msg: "User not found." 
+            });
+        }
+
+        // Generate new OTP
+        const otp = genarateOtp();
+
+        // Update session
+        req.session.forgotPasswordOtp = otp;
+        req.session.forgotPasswordOtpExpiry = Date.now() + 600000; // 10 minutes
+
+        // Send new OTP
+        const emailSent = await sendForgotPasswordOtp(email, otp, user.name);
+
+        if (emailSent) {
+            console.log(`Forgot Password OTP resent: ${otp}`); // For development
+            res.status(200).json({ 
+                success: true, 
+                msg: "OTP resent successfully" 
+            });
+        } else {
+            res.status(400).json({ 
+                success: false, 
+                msg: "Failed to resend OTP. Please try again." 
+            });
+        }
+
+    } catch (error) {
+        console.log('Error resending forgot password OTP:', error);
+        res.status(500).json({ 
+            success: false, 
+            msg: "An error occurred. Please try again." 
+        });
+    }
+}
+
+const loadResetPasswordWithOtp = async (req, res) => {
+    try {
+        // Check if user has verified OTP
+        if (!req.session.forgotPasswordVerified || !req.session.forgotPasswordEmail) {
+            return res.redirect('/forgot-password');
+        }
+
+        res.render('resetPassword', { 
+            msg: null, 
+            success: null 
+        });
+
+    } catch (error) {
+        console.log('Error loading reset password page:', error);
+        res.redirect('/page-not-found');
+    }
+}
+
+const resetPasswordWithOtp = async (req, res) => {
+    try {
+        const { password, confirmPassword } = req.body;
+
+        // Check if user has verified OTP
+        if (!req.session.forgotPasswordVerified || !req.session.forgotPasswordEmail) {
+            return res.render('resetPassword', { 
+                msg: "Session expired. Please start the process again.", 
+                success: null 
+            });
+        }
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            return res.render('resetPassword', { 
+                msg: "Passwords do not match", 
+                success: null 
+            });
+        }
+
+        // Validate password strength
+        if (password.length < 8) {
+            return res.render('resetPassword', { 
+                msg: "Password must be at least 8 characters long", 
+                success: null 
+            });
+        }
+
+        // Find user
+        const user = await User.findOne({ 
+            email: req.session.forgotPasswordEmail, 
+            isAdmin: 0 
+        });
+
+        if (!user) {
+            return res.render('resetPassword', { 
+                msg: "User not found.", 
+                success: null 
+            });
+        }
+
+        // Hash new password
+        const hashedPassword = await secretPassword(password);
+
+        // Update user password
+        user.password = hashedPassword;
+        await user.save();
+
+        // Clear session data
+        delete req.session.forgotPasswordOtp;
+        delete req.session.forgotPasswordEmail;
+        delete req.session.forgotPasswordOtpExpiry;
+        delete req.session.forgotPasswordVerified;
+
+        // Redirect to login with success message
+        res.render('login', { 
+            msg: null,
+            success: "Password has been reset successfully. Please login with your new password."
+        });
+
+    } catch (error) {
+        console.log('Error resetting password:', error);
+        res.render('resetPassword', { 
+            msg: "An error occurred. Please try again later.", 
+            success: null 
+        });
+    }
+}
 
 module.exports = {
     loadHomepage,
@@ -277,5 +567,11 @@ module.exports = {
     loadLogin,
     loginRegister,
     logout,
-    loadShopPage
+    loadShopPage,
+    loadForgotPassword,
+    forgotPassword,
+    verifyForgotPasswordOtp,
+    resendForgotPasswordOtp,
+    loadResetPasswordWithOtp,
+    resetPasswordWithOtp
 }

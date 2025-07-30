@@ -89,6 +89,12 @@
         </div>
         <% } %>
 
+        <% if (typeof success !== 'undefined' && success) { %>
+        <div class="text-center alert alert-success">
+            <%= success %>
+        </div>
+        <% } %>
+
         <a href="/auth/google" class="btn btn-google w-100 mb-2">
             <img src="https://developers.google.com/identity/images/g-logo.png" width="18"> Continue with Google
         </a>
@@ -107,6 +113,10 @@
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-1">Login</button>
         </form>
+
+        <div class="text-center mt-2">
+            <a href="/forgot-password" style="color: rgb(209, 0, 36); text-decoration: none; font-size: 12px;">Forgot Password?</a>
+        </div>
 
         <p class="text-center mt-2">Don't have an account? <a href="/register" style="color: rgb(209, 0, 36); text-decoration: none;">Register</a></p>
     </div>

@@ -503,72 +503,13 @@
         <div class="container">
             <h2 class="section-title">Featured Laptops</h2>
             <div class="row">
-                <!-- Sidebar Filter (Desktop Only) -->
-                <div class="col-lg-3 d-none d-lg-block">
-                    <div class="filter-sidebar">
-                        <h4 class="filter-title"><i class="fas fa-filter me-2"></i>Filters</h4>
-                        <!-- Brand Filter -->
-                        <div class="filter-group">
-                            <h6>Brand</h6>
-                            <% brandData.forEach((data)=>{ %>
-                                <div class="form-check">
-                                    <input class="form-check-input" name="brands" value="<%= data._id %>" id="brand-<%= data._id %>" type="checkbox">
-                                    <label class="form-check-label" for="brand-<%= data._id %>">
-                                        <%= data.name %>
-                                    </label>
-                                </div>
-                                <%})%>
-                        </div>
-                        <!-- Category Filter -->
-                        <div class="filter-group">
-                            <h6>Category</h6>
-                            <% categoryData.forEach((data)=>{ %>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="ram8">
-                                    <label class="form-check-label" for="ram8">
-                                        <%= data.name %>
-                                    </label>
-                                </div>
-                                <% }) %>
-                        </div>
-                        <!-- Price Range -->
-                        <div class="filter-group">
-                            <h6>Price Range</h6>
-                            <% ['500-1000', '1000-1500', '1500-2000', '2000-3000'].forEach((range, index) => { %>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="price<%= index %>">
-                                    <label class="form-check-label" for="price<%= index %>">
-                                        $<%= range %>
-                                    </label>
-                                </div>
-                            <% }) %>
-                        </div>
-                    </div>
-                </div>
                 <!-- Product Grid -->
-                <div class="col-lg-9">
+                <div class="col-12">
                     <div class="row">
-                        <div class="col-12 d-none d-lg-block">
-                            <div class="sort-dropdown text-end">
-                                <div class="dropdown">
-                                    <button class="btn dropdown-toggle" type="button" id="sortDropdown"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        Sort By
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
-                                        <% ['Price: Low to High', 'Price: High to Low', 'New Arrivals', 'A-Z', 'Z-A'].forEach((option, index) => { %>
-                                            <li><a class="dropdown-item" href="#"><%= option %></a></li>
-                                        <% }) %>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <!-- Product 1 -->
+                        <!-- Product Cards -->
                         <% for(let i=0; i < productData.length; i++) { %>
-                            <div class="col-md-6 col-xl-4">
-                                <div class="product-card">
+                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                <div class="product-card" onclick="handleProductClick('<%= productData[i]._id %>')">
                                     <div class="product-image">
                                         <img src="/Uploads/re-images/<%= productData[i].ProductImages[0] %>"
                                             class="img-fluid w-100 h-100 object-fit-cover rounded-top"
@@ -576,7 +517,7 @@
                                         <div class="product-badge">Popular</div>
                                     </div>
                                     <div class="product-info">
-                                        <a class="product-title">
+                                        <a class="product-title" href="javascript:void(0)" onclick="handleProductClick('<%= productData[i]._id %>')">
                                             <%= productData[i].productName %>
                                         </a>
                                         <p class="product-specs">
@@ -587,7 +528,7 @@
                                         </p>
                                         <span class="product-price">$<%= productData[i].variants[0].regularPrice %></span>
                                         <span class="product-price text-muted text-decoration-line-through me-2 fs-6">$<%= productData[i].variants[0].salePrice %></span>
-                                        <button class="btn btn-product pt-3">Add to Cart</button>
+                                        <button class="btn btn-product pt-3" onclick="handleAddToCart(event, '<%= productData[i]._id %>')">Add to Cart</button>
                                     </div>
                                 </div>
                             </div>
@@ -718,13 +659,84 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.querySelectorAll('input[name="brands"]').forEach((checkbox)=>{
-            checkbox.addEventListener('change',()=>{
-                const selected = Array.from(document.querySelectorAll('input[name="brands"]:checked')).map(cb => cb.value);
-                const query = selected.length? `?brands${selected.join(',')}`: '';
-                window.location.href = "/products" + query;
-            })
-        })
+        // Check if user is logged in
+        const isUserLoggedIn = <%= user ? 'true' : 'false' %>;
+        
+        // Function to check authentication before any action
+        function checkAuthentication() {
+            if (!isUserLoggedIn) {
+                window.location.href = '/login';
+                return false;
+            }
+            return true;
+        }
+        
+        // Handle product click
+        function handleProductClick(productId) {
+            if (checkAuthentication()) {
+                window.location.href = `/product/${productId}`;
+            }
+        }
+        
+        // Handle add to cart
+        function handleAddToCart(event, productId) {
+            event.stopPropagation(); // Prevent triggering product click
+            if (checkAuthentication()) {
+                // Add your cart functionality here
+                console.log('Adding product to cart:', productId);
+                // You can implement actual cart functionality here
+                alert('Product added to cart!');
+            }
+        }
+        
+        // Add click event listeners to all clickable elements for authentication check
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add authentication check to navigation links (except login/register)
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (!link.href.includes('/login') && !link.href.includes('/register')) {
+                    link.addEventListener('click', function(e) {
+                        if (!isUserLoggedIn && !link.href.includes('#')) {
+                            e.preventDefault();
+                            window.location.href = '/login';
+                        }
+                    });
+                }
+            });
+            
+            // Add authentication check to shop now button
+            const shopButton = document.querySelector('.btn-hero');
+            if (shopButton) {
+                shopButton.addEventListener('click', function(e) {
+                    if (!isUserLoggedIn) {
+                        e.preventDefault();
+                        window.location.href = '/login';
+                    }
+                });
+            }
+            
+            // Add authentication check to pagination links
+            const paginationLinks = document.querySelectorAll('.page-link');
+            paginationLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!isUserLoggedIn) {
+                        e.preventDefault();
+                        window.location.href = '/login';
+                    }
+                });
+            });
+            
+            // Add authentication check to footer links
+            const footerLinks = document.querySelectorAll('.footer a');
+            footerLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!isUserLoggedIn && !link.href.includes('#')) {
+                        e.preventDefault();
+                        window.location.href = '/login';
+                    }
+                });
+            });
+        });
     </script>
 
 

@@ -383,7 +383,7 @@
             const existingUrls = <%- JSON.stringify(productData.ProductImages) %>;
           existingUrls.forEach((url) => {
             uploadedImages.product.push(url);
-            addImageToPreview(`/uploads/re-images/${url}`, 'productPreview')
+            addImageToPreview(`/uploads/re-images/${url}`, 'productPreview', 'product')
 
           })
             <% } %>
@@ -604,7 +604,7 @@
 
         if (currentUploadType === 'product') {
           uploadedImages.product.push(imageUrl);
-          addImageToPreview(imageUrl, 'productPreview');
+          addImageToPreview(imageUrl, 'productPreview', 'product');
         }
 
         cropper.destroy();
@@ -615,7 +615,7 @@
         if (fileInput) fileInput.value = '';
       }
 
-      function addImageToPreview(imageUrl, previewId) {
+      function addImageToPreview(imageUrl, previewId, type = 'product') {
         const previewDiv = document.getElementById(previewId);
         if (!previewDiv) return;
 
@@ -636,7 +636,7 @@
         removeBtn.className = 'remove-img';
         removeBtn.innerHTML = '×';
         removeBtn.onclick = function () {
-          removeImage(imageUrl, currentUploadType);
+          removeImage(imageUrl, type);
           imgContainer.remove();
         };
 
@@ -647,7 +647,18 @@
 
       function removeImage(imageUrl, type) {
         if (type === 'product') {
-          uploadedImages.product = uploadedImages.product.filter(img => img !== imageUrl);
+          // For existing images, we need to extract the filename from the URL
+          let imageToRemove = imageUrl;
+          if (imageUrl.includes('/uploads/re-images/')) {
+            imageToRemove = imageUrl.split('/uploads/re-images/')[1];
+          }
+          uploadedImages.product = uploadedImages.product.filter(img => {
+            // Handle both data URLs and filename strings
+            if (img.includes('/uploads/re-images/')) {
+              return img.split('/uploads/re-images/')[1] !== imageToRemove;
+            }
+            return img !== imageToRemove && img !== imageUrl;
+          });
         }
       }
 

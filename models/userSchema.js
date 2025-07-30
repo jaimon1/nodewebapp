@@ -79,7 +79,13 @@ const userSchema = new Schema({
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    }
 });
 
 const User = mongoose.model('User',userSchema);

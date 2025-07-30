@@ -157,7 +157,7 @@ const editProduct = async (req, res) => {
     try {
         const id = req.params.id;
         const { productName, brand, category, description } = req.body;
-        let variants;z
+        let variants;
         try {
             variants = JSON.parse(req.body.variants);
         } catch (e) {
@@ -210,7 +210,6 @@ const editProduct = async (req, res) => {
             variants,
             ProductImages: images
         });
-
 
         res.json({ success: true, message: "Product updated successfully." });
     } catch (error) {

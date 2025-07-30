@@ -14,6 +14,12 @@ router.post('/resendOtp',userController.resendOtp);
 router.get('/login',userController.loadLogin);
 router.post('/login',userController.loginRegister);
 router.get('/logout',userController.logout);
+router.get('/forgot-password',userController.loadForgotPassword);
+router.post('/forgot-password',userController.forgotPassword);
+router.post('/verify-forgot-password-otp',userController.verifyForgotPasswordOtp);
+router.post('/resend-forgot-password-otp',userController.resendForgotPasswordOtp);
+router.get('/reset-password-with-otp',userController.loadResetPasswordWithOtp);
+router.post('/reset-password-with-otp',userController.resetPasswordWithOtp);
 
 router.get("/shop",productController.branding)
 router.get('/product/:id',productController.getProductDetails)
