@@ -7,7 +7,6 @@ const orderSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         default: () => uuidv4(),
-        unique: true
     },
     orderItems: [{
         product: {

@@ -25,7 +25,7 @@ const loadHomepage = async (req, res) => {
         })
         const search = req.query.search || '';
         const page = parseInt(req.query.page) || 1;
-        const limit = 6
+        const limit = 8
         const skip = (page - 1) * limit;
         const existsProducts = await Product.find({
             isBlocked: false,
@@ -36,8 +36,7 @@ const loadHomepage = async (req, res) => {
         }
 
         const totalCount = await Product.countDocuments({
-            isBlocked: false,
-            $or: [{ productName: { $regex: ".*" + search + ".*", $options: "i" } }]
+            isBlocked: false
         });
 
         let totalPages = Math.ceil(totalCount / limit);
@@ -206,7 +205,13 @@ const resendOtp = async function (req, res) {
 const loadLogin = async (req, res) => {
     try {
         if (!req.session.user && !req.user) {
-            res.render('login', { msg: "" })
+            let msg = "";
+            if (req.query.error === 'blocked') {
+                msg = "Your account has been blocked by the administrator.";
+            } else if (req.query.error === 'google_blocked') {
+                msg = "User blocked by admin";
+            }
+            res.render('login', { msg: msg, success: null })
         } else {
             res.redirect('/');
         }
@@ -221,14 +226,14 @@ const loginRegister = async (req, res) => {
         const findUser = await User.findOne({ isAdmin: 0, email: email });
 
         if (!findUser) {
-            return res.render('login', { msg: "User Not Exists" })
+            return res.render('login', { msg: "User Not Exists", success: null })
         }
         if (findUser.isBlocked) {
-            return res.render('login', { msg: "User Blocked by Jaimon" })
+            return res.render('login', { msg: "User Blocked by Jaimon", success: null })
         }
         const comparePassword = await bcrypt.compare(password, findUser.password)
         if (!comparePassword) {
-            return res.render('login', { msg: "Password Not Match" });
+            return res.render('login', { msg: "Password Not Match", success: null });
         }
 
         req.session.user = findUser;
@@ -265,8 +270,6 @@ const loadShopPage = async (req, res) => {
 
     }
 }
-
-// Forgot Password Functions with OTP
 async function sendForgotPasswordOtp(email, otp, name) {
     try {
         const transporter = nodemailer.createTransport({
@@ -326,11 +329,9 @@ const loadForgotPassword = async (req, res) => {
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        
-        // Check if user exists
         const user = await User.findOne({ email: email, isAdmin: 0 });
         
-        if (!user) {
+    if (!user) {
             return res.render('forgotPassword', { 
                 msg: "No account found with this email address", 
                 success: null 
@@ -344,15 +345,15 @@ const forgotPassword = async (req, res) => {
             });
         }
 
-        // Generate OTP
-        const otp = genarateOtp();
 
-        // Store OTP in session
+    const otp = genarateOtp();
+
+
         req.session.forgotPasswordOtp = otp;
         req.session.forgotPasswordEmail = email;
         req.session.forgotPasswordOtpExpiry = Date.now() + 600000; // 10 minutes
 
-        // Send OTP email
+
         const emailSent = await sendForgotPasswordOtp(email, otp, user.name);
         
         if (emailSent) {
@@ -378,25 +379,19 @@ const verifyForgotPasswordOtp = async (req, res) => {
     try {
         const { otp } = req.body;
         
-        // Check if OTP session exists and is valid
-        if (!req.session.forgotPasswordOtp || !req.session.forgotPasswordEmail) {
+    if (!req.session.forgotPasswordOtp || !req.session.forgotPasswordEmail) {
             return res.status(400).json({ 
                 success: false, 
                 msg: "Session expired. Please start the process again." 
             });
         }
-
-        // Check if OTP has expired
         if (Date.now() > req.session.forgotPasswordOtpExpiry) {
             return res.status(400).json({ 
                 success: false, 
                 msg: "OTP has expired. Please request a new one." 
             });
         }
-
-        // Verify OTP
-        if (req.session.forgotPasswordOtp == otp) {
-            // OTP is correct, allow password reset
+    if (req.session.forgotPasswordOtp == otp) {
             req.session.forgotPasswordVerified = true;
             res.status(200).json({ 
                 success: true, 
@@ -437,15 +432,11 @@ const resendForgotPasswordOtp = async (req, res) => {
                 msg: "User not found." 
             });
         }
-
-        // Generate new OTP
         const otp = genarateOtp();
 
-        // Update session
         req.session.forgotPasswordOtp = otp;
         req.session.forgotPasswordOtpExpiry = Date.now() + 600000; // 10 minutes
 
-        // Send new OTP
         const emailSent = await sendForgotPasswordOtp(email, otp, user.name);
 
         if (emailSent) {
@@ -499,16 +490,12 @@ const resetPasswordWithOtp = async (req, res) => {
                 success: null 
             });
         }
-
-        // Validate passwords match
         if (password !== confirmPassword) {
             return res.render('resetPassword', { 
                 msg: "Passwords do not match", 
                 success: null 
             });
         }
-
-        // Validate password strength
         if (password.length < 8) {
             return res.render('resetPassword', { 
                 msg: "Password must be at least 8 characters long", 
@@ -516,7 +503,6 @@ const resetPasswordWithOtp = async (req, res) => {
             });
         }
 
-        // Find user
         const user = await User.findOne({ 
             email: req.session.forgotPasswordEmail, 
             isAdmin: 0 
@@ -529,20 +515,16 @@ const resetPasswordWithOtp = async (req, res) => {
             });
         }
 
-        // Hash new password
         const hashedPassword = await secretPassword(password);
 
-        // Update user password
         user.password = hashedPassword;
         await user.save();
 
-        // Clear session data
         delete req.session.forgotPasswordOtp;
         delete req.session.forgotPasswordEmail;
         delete req.session.forgotPasswordOtpExpiry;
         delete req.session.forgotPasswordVerified;
 
-        // Redirect to login with success message
         res.render('login', { 
             msg: null,
             success: "Password has been reset successfully. Please login with your new password."

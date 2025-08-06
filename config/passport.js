@@ -13,11 +13,19 @@ passport.use(new GoogleStrategy({
         try {
             user = await User.findOne({ googleId: profile.id });
             if (user) {
+                // Check if user is blocked
+                if (user.isBlocked) {
+                    return done(null, false, { message: 'Your account has been blocked by the administrator.' });
+                }
                 return done(null, user)
             } else {
 
                 user = await User.findOne({ email: profile.emails[0].value });
                 if (user) {
+                    // Check if user is blocked
+                    if (user.isBlocked) {
+                        return done(null, false, { message: 'Your account has been blocked by the administrator.' });
+                    }
                     user.googleId = profile.id;
                     await user.save();
                     return done(null, user);

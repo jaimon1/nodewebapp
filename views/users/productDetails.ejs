@@ -376,6 +376,10 @@
         /* Related Products */
         .related-products {
             margin-top: 4rem;
+            background: white;
+            padding: 3rem 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         .section-title {
@@ -383,12 +387,27 @@
             font-weight: 700;
             margin-bottom: 2rem;
             color: var(--dark-color);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
         }
 
         .related-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
+            margin-top: 3rem;
         }
 
         .related-card {
@@ -398,33 +417,175 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
+            border: 1px solid #f1f5f9;
         }
 
         .related-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border-color: var(--primary-color);
+        }
+
+        .related-image-container {
+            position: relative;
+            overflow: hidden;
         }
 
         .related-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .related-card:hover .related-image {
+            transform: scale(1.05);
+        }
+
+        .related-discount-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .related-category-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(37, 99, 235, 0.9);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            z-index: 2;
         }
 
         .related-info {
-            padding: 1rem;
+            padding: 1.2rem;
+        }
+
+        .related-brand {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .related-title {
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
             color: var(--dark-color);
             text-decoration: none;
+            font-size: 1rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .related-title:hover {
+            color: var(--primary-color);
+        }
+
+        .related-price-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .related-price {
             color: var(--primary-color);
             font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .related-original-price {
+            color: var(--secondary-color);
+            text-decoration: line-through;
+            font-size: 0.9rem;
+        }
+
+        .related-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .related-stars {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+
+        .related-rating-text {
+            color: var(--secondary-color);
+            font-size: 0.8rem;
+        }
+
+        .related-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .related-btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .related-btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .related-btn-primary:hover {
+            background: #1d4ed8;
+            color: white;
+            text-decoration: none;
+        }
+
+        .related-btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .related-btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .no-related-products {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+        }
+
+        .no-related-products i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
 
         /* Mobile Responsive */
@@ -517,7 +678,7 @@
             </div>
         </div>
     </nav>
-
+<%-include("../../views/parsuals/user/header")%>
     <!-- Breadcrumb -->
     <section class="breadcrumb-section">
         <div class="container">
@@ -589,9 +750,9 @@
                         </div>
 
                         <div class="product-price">
-                            <span class="current-price" id="currentPrice">$<%= product.variants[0].salePrice %></span>
+                            <span class="current-price" id="currentPrice">₹<%= product.variants[0].salePrice %></span>
                             <% if (product.variants[0].regularPrice > product.variants[0].salePrice) { %>
-                                <span class="original-price" id="originalPrice">$<%= product.variants[0].regularPrice %></span>
+                                <span class="original-price" id="originalPrice">₹<%= product.variants[0].regularPrice %></span>
                                 <span class="discount-badge">
                                     <%= Math.round(((product.variants[0].regularPrice - product.variants[0].salePrice) / product.variants[0].regularPrice) * 100) %>% OFF
                                 </span>
@@ -662,7 +823,7 @@
                             <div class="features-title">Product Features:</div>
                             <div class="feature-item">
                                 <i class="fas fa-shipping-fast feature-icon"></i>
-                                <span>Free shipping on orders over $500</span>
+                                <span>Free shipping on orders over ₹5000</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-undo feature-icon"></i>
@@ -687,22 +848,106 @@
     <% if (relatedProducts && relatedProducts.length > 0) { %>
         <section class="related-products">
             <div class="container">
-                <h2 class="section-title">Related Products</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-heart me-2"></i>You Might Also Like
+                </h2>
                 <div class="related-grid">
                     <% relatedProducts.forEach(relatedProduct => { %>
-                        <div class="related-card" onclick="window.location.href='/product/<%= relatedProduct._id %>'">
-                            <img src="/Uploads/re-images/<%= relatedProduct.ProductImages[0] %>" 
-                                 alt="<%= relatedProduct.productName %>" 
-                                 class="related-image"
-                                 onerror="this.src='/images/placeholder.jpg'">
+                        <div class="related-card">
+                            <div class="related-image-container">
+                                <img src="/Uploads/re-images/<%= relatedProduct.ProductImages[0] %>" 
+                                     alt="<%= relatedProduct.productName %>" 
+                                     class="related-image"
+                                     onerror="this.src='/images/placeholder.jpg'">
+                                
+                                <!-- Category Badge -->
+                                <div class="related-category-badge">
+                                    <%= relatedProduct.category.name %>
+                                </div>
+                                
+                                <!-- Discount Badge -->
+                                <% if (relatedProduct.hasDiscount) { %>
+                                    <div class="related-discount-badge">
+                                        <%= relatedProduct.discountPercentage %>% OFF
+                                    </div>
+                                <% } %>
+                            </div>
+                            
                             <div class="related-info">
+                                <!-- Brand -->
+                                <div class="related-brand">
+                                    <%= relatedProduct.brand.name %>
+                                </div>
+                                
+                                <!-- Product Title -->
                                 <a href="/product/<%= relatedProduct._id %>" class="related-title">
                                     <%= relatedProduct.productName %>
                                 </a>
-                                <div class="related-price">$<%= relatedProduct.variants[0].salePrice %></div>
+                                
+                                <!-- Rating -->
+                                <div class="related-rating">
+                                    <div class="related-stars">
+                                        <% for(let i = 1; i <= 5; i++) { %>
+                                            <% if (i <= Math.floor(relatedProduct.avgRating || 0)) { %>
+                                                <i class="fas fa-star"></i>
+                                            <% } else if (i === Math.ceil(relatedProduct.avgRating || 0) && (relatedProduct.avgRating || 0) % 1 !== 0) { %>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            <% } else { %>
+                                                <i class="far fa-star"></i>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                    <span class="related-rating-text">
+                                        (<%= relatedProduct.avgRating || 0 %>) • <%= relatedProduct.reviewCount || 0 %> reviews
+                                    </span>
+                                </div>
+                                
+                                <!-- Price -->
+                                <div class="related-price-container">
+                                    <span class="related-price">₹<%= relatedProduct.minPrice %></span>
+                                    <% if (relatedProduct.hasDiscount) { %>
+                                        <% const originalVariant = relatedProduct.variants.find(v => v.regularPrice > v.salePrice); %>
+                                        <% if (originalVariant) { %>
+                                            <span class="related-original-price">₹<%= originalVariant.regularPrice %></span>
+                                        <% } %>
+                                    <% } %>
+                                    <% if (relatedProduct.minPrice !== relatedProduct.maxPrice) { %>
+                                        <small class="text-muted"> - ₹<%= relatedProduct.maxPrice %></small>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="related-actions">
+                                    <a href="/product/<%= relatedProduct._id %>" class="related-btn related-btn-primary">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                    <button class="related-btn related-btn-outline" onclick="event.stopPropagation(); addToWishlistFromRelated('<%= relatedProduct._id %>')">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     <% }) %>
+                </div>
+                
+                <!-- View More Button -->
+                <div class="text-center mt-4">
+                    <a href="/shop?category=<%= product.category._id %>" class="related-btn related-btn-outline" style="display: inline-block; padding: 1rem 2rem;">
+                        <i class="fas fa-th-large me-2"></i>View More in <%= product.category.name %>
+                    </a>
+                </div>
+            </div>
+        </section>
+    <% } else { %>
+        <section class="related-products">
+            <div class="container">
+                <div class="no-related-products">
+                    <i class="fas fa-search"></i>
+                    <h3>No Related Products Found</h3>
+                    <p>Check out our other amazing products in the shop!</p>
+                    <a href="/shop" class="related-btn related-btn-primary" style="display: inline-block; margin-top: 1rem;">
+                        <i class="fas fa-shopping-bag me-2"></i>Browse All Products
+                    </a>
                 </div>
             </div>
         </section>
@@ -764,10 +1009,10 @@
             document.querySelector(`[data-variant-index="${index}"]`).classList.add('active');
             
             // Update price
-            document.getElementById('currentPrice').textContent = `$${variant.salePrice}`;
+            document.getElementById('currentPrice').textContent = `₹${variant.salePrice}`;
             const originalPriceElement = document.getElementById('originalPrice');
             if (originalPriceElement) {
-                originalPriceElement.textContent = `$${variant.regularPrice}`;
+                originalPriceElement.textContent = `₹${variant.regularPrice}`;
             }
             
             // Update quantity limits
@@ -844,6 +1089,12 @@
             alert('Added to wishlist!');
         }
 
+        // Add to wishlist from related products
+        function addToWishlistFromRelated(productId) {
+            // Add to wishlist logic for related products
+            alert(`Added product ${productId} to wishlist!`);
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             setupImageZoom();
@@ -860,5 +1111,4 @@
             });
         });
     </script>
-</body>
-</html>
+    <%-include("../../views/parsuals/user/footer")%>

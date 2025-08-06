@@ -523,6 +523,8 @@
         </div>
     </nav>
 
+     <%-include("../../views/parsuals/user/header")%>
+
     <!-- Search Section -->
     <section class="search-section" style="margin-top: 76px;">
         <div class="container">
@@ -641,9 +643,9 @@
                                         <%= product.shortDescription %>
                                     </p>
                                     <div class="product-price">
-                                        <span class="current-price">$<%= product.minVariantPrice %></span>
+                                        <span class="current-price">₹<%= product.minVariantPrice %></span>
                                         <% if (product.maxVariantPrice > product.minVariantPrice) { %>
-                                            <span class="original-price">$<%= product.maxVariantPrice %></span>
+                                            <span class="original-price">₹<%= product.maxVariantPrice %></span>
                                         <% } %>
                                     </div>
                                     <div class="product-rating">
@@ -703,7 +705,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         // Global variables
         let currentFilters = {
@@ -871,9 +873,9 @@
                             ${product.shortDescription}
                         </p>
                         <div class="product-price">
-                            <span class="current-price">$${product.minVariantPrice}</span>
+                            <span class="current-price">₹${product.minVariantPrice}</span>
                             ${product.maxVariantPrice > product.minVariantPrice ? 
-                                `<span class="original-price">$${product.maxVariantPrice}</span>` : ''
+                                `<span class="original-price">₹${product.maxVariantPrice}</span>` : ''
                             }
                         </div>
                         <div class="product-rating">
@@ -970,5 +972,4 @@
         // Update search input on page load
         document.getElementById('searchInput').addEventListener('input', updateClearSearchButton);
     </script>
-</body>
-</html>
+    <%-include("../../views/parsuals/user/footer")%>

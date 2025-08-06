@@ -46,10 +46,10 @@
                                                 <td>
                                                     <%if(brand.isBlocked===true) { %>
                                                         <a href="/admin/blockBrand?id=<%=brand._id%>&page=<%=currentPages%>"
-                                                            class="btn btn-sm btn-danger ">Block</a>
+                                                            class="btn btn-sm btn-success ">Un Block</a>
                                                         <% } else {%>
                                                             <a href="/admin/unBlockBrand?id=<%=brand._id%>&page=<%=currentPages%>"
-                                                                class="btn btn-sm btn-success ">UnBlock</a>
+                                                                class="btn btn-sm btn-danger ">Block</a>
                                                             <% } %>
                                                                 <a href="/admin/deleteBrand?id=<%= brand._id %>&page=<%= currentPages %>" class="btn btn-sm btn-danger">Delete</a>
                                                 </td>

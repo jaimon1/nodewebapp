@@ -56,14 +56,15 @@ const loadCategory = async (req, res) => {
 
 const addCategory = async (req, res) => {
 
-    const { id, categoryName, slug, description } = req.body;
+    const { id, categoryName, description } = req.body;
+    console.log(id, categoryName, description)
     try {
         if (id) {
             let isHas = await Category.findOne({ name: categoryName });
             if (isHas) {
                 return res.status(400).json({ message: 'Category Already Exists' });
             }
-            await Category.findByIdAndUpdate(id, { name: categoryName, slug: slug, description: description }, { new: true });
+            await Category.findByIdAndUpdate(id, { name: categoryName, description: description }, { new: true });
             return res.json({ message: "Category Updated Successfully" });
         }
 
@@ -71,7 +72,7 @@ const addCategory = async (req, res) => {
         if (validResponce) {
             return res.status(400).json({ message: 'Category Already Exists' });
         }
-        const newCategory = new Category({ name: categoryName, slug: slug, description: description });
+        const newCategory = new Category({ name: categoryName,description: description });
         await newCategory.save();
         return res.json({ message: "category Added Successfully" });
 

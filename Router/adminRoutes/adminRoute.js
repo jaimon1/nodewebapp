@@ -7,6 +7,7 @@ const categoryController = require('../../controllers/admin/categoryController')
 const productController = require('../../controllers/admin/productControl');
 const { uploadDisk, uploads } = require('../../helpers/multer');
 const brandController = require('../../controllers/admin/brandController');
+const { errorHandler } = require('../../middilwares/auth');
 
 
 // adminRoutes
@@ -43,12 +44,16 @@ router.get('/deleteBrand', adminAuth, brandController.deleteBrand);
 //Product Routes
 router.get('/loadProduct', adminAuth, productController.loadProductList);
 router.get("/addProduct", adminAuth, productController.loadAddProduct)
-router.post('/addProduct', uploadDisk.array( 'productImages',5), productController.addProduct);
-router.get('/blockProduct',adminAuth,productController.blockProduct);
-router.get('/unblockProduct',adminAuth,productController.unblockProduct);
-router.get("/deleteProduct",adminAuth,productController.deleteProduct);
-router.get('/editProduct/:id',adminAuth,productController.loadeditProduct);
-router.post('/editProduct/:id', uploadDisk.array('productImages', 5), productController.editProduct)
+router.post('/addProduct', uploadDisk.array('productImages', 5), productController.addProduct);
+router.get('/blockProduct', adminAuth, productController.blockProduct);
+router.get('/unblockProduct', adminAuth, productController.unblockProduct);
+router.get("/deleteProduct", adminAuth, productController.deleteProduct);
+router.get('/editProduct/:id', adminAuth, productController.loadeditProduct);
+router.post('/editProduct/:id', uploadDisk.array('productImages', 5), productController.editProduct);
+
+
+
+router.use(errorHandler);
 module.exports = router;
 
 

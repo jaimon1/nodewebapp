@@ -5,7 +5,7 @@ const Category = require('../../models/categorySchema');
 const branding = async(req,res)=>{
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
+        const limit = parseInt(req.query.limit) || 6;
         const skip = (page - 1) * limit;
         
         
@@ -104,6 +104,7 @@ const branding = async(req,res)=>{
         
         
         const isAjax = req.xhr || 
+        
                       (req.headers.accept && req.headers.accept.indexOf('json') > -1) || 
                       req.headers['x-requested-with'] === 'XMLHttpRequest';
         
@@ -170,19 +171,89 @@ const getProductDetails = async (req, res) => {
         if (!product || product.isBlocked) {
             return res.status(404).render('pageNotFound');
         }
+        const productMinPrice = Math.min(...product.variants.map(v => v.salePrice));
+        const productMaxPrice = Math.max(...product.variants.map(v => v.salePrice));
+        const priceRange = {
+            min: productMinPrice * 0.7, 
+            max: productMaxPrice * 1.3   
+        };
         
-        
-        const relatedProducts = await Product.find({
+
+        let relatedProducts = [];
+        const sameCategoryProducts = await Product.find({
             category: product.category._id,
             _id: { $ne: productId },
             isBlocked: false,
             status: { $ne: 'Discontinued' }
-        }).limit(4);
+        })
+        .populate('category')
+        .populate('brand')
+        .limit(6);
+        
+        relatedProducts = [...sameCategoryProducts];
+        if (relatedProducts.length < 8) {
+            const sameBrandProducts = await Product.find({
+                brand: product.brand._id,
+                _id: { $ne: productId },
+                isBlocked: false,
+                status: { $ne: 'Discontinued' },
+                _id: { $nin: relatedProducts.map(p => p._id) }
+            })
+            .populate('category')
+            .populate('brand')
+            .limit(8 - relatedProducts.length);
+            
+            relatedProducts = [...relatedProducts, ...sameBrandProducts];
+        }
+        if (relatedProducts.length < 8) {
+            const similarPriceProducts = await Product.find({
+                _id: { $ne: productId, $nin: relatedProducts.map(p => p._id) },
+                isBlocked: false,
+                status: { $ne: 'Discontinued' }
+            })
+            .populate('category')
+            .populate('brand');
+
+            const filteredByPrice = similarPriceProducts.filter(prod => {
+                const minPrice = Math.min(...prod.variants.map(v => v.salePrice));
+                const maxPrice = Math.max(...prod.variants.map(v => v.salePrice));
+                return (minPrice >= priceRange.min && minPrice <= priceRange.max) ||
+                       (maxPrice >= priceRange.min && maxPrice <= priceRange.max);
+            }).slice(0, 8 - relatedProducts.length);
+            
+            relatedProducts = [...relatedProducts, ...filteredByPrice];
+        }
+        if (relatedProducts.length < 8) {
+            const otherProducts = await Product.find({
+                _id: { $ne: productId, $nin: relatedProducts.map(p => p._id) },
+                isBlocked: false,
+                status: { $ne: 'Discontinued' }
+            })
+            .populate('category')
+            .populate('brand')
+            .limit(8 - relatedProducts.length);
+            
+            relatedProducts = [...relatedProducts, ...otherProducts];
+        }
+
+        relatedProducts = relatedProducts.map(relatedProduct => {
+            const productObj = relatedProduct.toObject();
+            if (relatedProduct.variants && relatedProduct.variants.length > 0) {
+                productObj.minPrice = Math.min(...relatedProduct.variants.map(v => v.salePrice));
+                productObj.maxPrice = Math.max(...relatedProduct.variants.map(v => v.salePrice));
+                productObj.hasDiscount = relatedProduct.variants.some(v => v.regularPrice > v.salePrice);
+                if (productObj.hasDiscount) {
+                    const variant = relatedProduct.variants.find(v => v.regularPrice > v.salePrice);
+                    productObj.discountPercentage = Math.round(((variant.regularPrice - variant.salePrice) / variant.regularPrice) * 100);
+                }
+            }
+            return productObj;
+        });
         
         res.render('productDetails', {
             user: req.session.user || req.user || null,
             product,
-            relatedProducts
+            relatedProducts: relatedProducts.slice(0, 8) 
         });
         
     } catch (error) {

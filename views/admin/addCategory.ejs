@@ -17,12 +17,6 @@
                                             value="<%= category? category.name : '' %>" />
                                         <div class="error" id="name-Error"></div>
                             </div>
-                            <!-- <div class="col-md-6 mb-3">
-                                <label for="slug" class="form-label">Slug</label>
-                                <input type="text" id="slug" name="slug" class="form-control" placeholder="Enter slug"
-                                    value="<%= category? category.slug : '' %>" />
-                                <div class="error" id="slug-Error"></div>
-                            </div> -->
                             <div class="col-12 mb-3">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea id="description" name="description" rows="3" class="form-control"
@@ -49,7 +43,7 @@
             }
 
             const categoryName = document.getElementById("categoryName").value.trim();
-            const slug = document.getElementById("slug").value.trim();
+         
             const description = document.getElementById("description").value.trim();
             const idElement = document.getElementById('id');
             const id = idElement ? idElement.value.trim() : null;
@@ -58,7 +52,7 @@
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ categoryName, slug, description, id })
+                body: JSON.stringify({ categoryName, description, id })
             })
                 .then(response => {
                     if (!response.ok) {

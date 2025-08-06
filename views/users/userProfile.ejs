@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f7cff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: white !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .navbar-nav .nav-link {
+            color: #6c757d !important;
+            font-weight: 500;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), #6c5ce7);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            object-fit: cover;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+
+        .profile-card h5 {
+            color: var(--primary-color);
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #3d6ae6;
+            border-color: #3d6ae6;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .order-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(79, 124, 255, 0.25);
+        }
+
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .edit-mode {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                text-align: center;
+            }
+
+            .profile-img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-laptop"></i> LapTique
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown">
+
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-shopping-bag me-2"></i>Orders</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <%-include("../../views/parsuals/user/header")%>
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center text-md-start">
+                        <img src="https://via.placeholder.com/120x120/4f7cff/ffffff?text=JM" alt="Profile"
+                            class="profile-img" id="profileImage">
+                    </div>
+                    <div class="col-md-6 text-center text-md-start mt-3 mt-md-0">
+                        <h2 class="mb-1" id="displayName">
+                            <%= user.name %>
+                        </h2>
+                        <p class="mb-1" id="displayEmail">
+                            <%= user.email %>
+                        </p>
+                        <p class="mb-0">Member since <%= new Date(user.createdOn).toLocaleString('default', {
+                                month: 'long' , year: 'numeric' }) %>
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-center text-md-end mt-3 mt-md-0">
+                        <a href="/editProfile" class="btn btn-light" onclick="toggleEditMode()">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Stats Row -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stats-card">
+                        <div class="stats-number">12</div>
+                        <div class="text-muted">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stats-card">
+                        <div class="stats-number">3</div>
+                        <div class="text-muted">Active Orders</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stats-card">
+                        <div class="stats-number">₹2,45,000</div>
+                        <div class="text-muted">Total Spent</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stats-card">
+                        <div class="stats-number">9</div>
+                        <div class="text-muted">Reviews</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-lg-4">
+                    <!-- Profile Details -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-user me-2"></i>Profile Details</h5>
+
+                        <div id="viewMode">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Full Name</label>
+                                <p class="mb-0" id="viewName"><%= user.name %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email</label>
+                                <p class="mb-0" id="viewEmail"><%= user.email %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Phone</label>
+                                <p class="mb-0" id="viewPhone">+91 <%= user.phone %></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Date of Birth</label>
+                                <p class="mb-0" id="viewDob"><%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %></p>
+                            </div>
+                        </div>
+
+                        <div id="editMode" style="display: none;" class="edit-mode">
+                            <form id="profileForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="editName" value="Jaimon M">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="editEmail" value="jaimon@example.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" id="editPhone" value="+91 9876543210">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" id="editDob" value="1995-01-15">
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary" onclick="saveProfile()">
+                                        <i class="fas fa-save me-2"></i>Save
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-map-marker-alt me-2"></i>Shipping Address</h5>
+                        <div id="addressView">
+                            <p class="mb-2"><strong>Home</strong></p>
+                            <p class="mb-1">123 Tech Street</p>
+                            <p class="mb-1">Kanayannur, Kerala 682301</p>
+                            <p class="mb-3">India</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="editAddress()">
+                                <i class="fas fa-edit me-2"></i>Edit Address
+                            </button>
+                        </div>
+
+                        <div id="addressEdit" style="display: none;" class="edit-mode">
+                            <form id="addressForm" >
+                                <div class="mb-3">
+                                    <label class="form-label">Address Line 1</label>
+                                    <input type="text" class="form-control" id="address1" value="123 Tech Street">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city" value="Kanayannur">
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">State</label>
+                                            <input type="text" class="form-control" id="state" value="Kerala">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">PIN Code</label>
+                                            <input type="text" class="form-control" id="pincode" value="682301">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="saveAddress()">
+                                        <i class="fas fa-save me-2"></i>Save
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        onclick="cancelAddressEdit()">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-cog me-2"></i>Account Settings</h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="changePassword()">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="forgotPassword()">
+                                <i class="fas fa-question-circle me-2"></i>Forgot Password
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteAccount()">
+                                <i class="fas fa-trash me-2"></i>Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-lg-8">
+                    <!-- Recent Orders -->
+                    <div class="profile-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5><i class="fas fa-shopping-bag me-2"></i>Recent Orders</h5>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-2"></i>View All
+                            </button>
+                        </div>
+
+                        <!-- Order Item 1 -->
+                        <div class="order-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-3">
+                                    <img src="https://via.placeholder.com/60x60/ff6b6b/ffffff?text=MB" alt="MacBook"
+                                        class="product-img">
+                                </div>
+                                <div class="col-md-6 col-9">
+                                    <h6 class="mb-1">Apple MacBook Pro M3 Max</h6>
+                                    <p class="text-muted mb-1">Order #LP001234</p>
+                                    <small class="text-muted">Ordered on July 28, 2025</small>
+                                </div>
+                                <div class="col-md-2 col-6 mt-2 mt-md-0">
+                                    <span class="status-badge status-delivered">Delivered</span>
+                                </div>
+                                <div class="col-md-2 col-6 mt-2 mt-md-0 text-end">
+                                    <p class="mb-0 fw-bold">₹3,65,990</p>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="trackOrder('LP001234')">
+                                        Track
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Item 2 -->
+                        <div class="order-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-3">
+                                    <img src="https://via.placeholder.com/60x60/74b9ff/ffffff?text=MA" alt="MacBook Air"
+                                        class="product-img">
+                                </div>
+                                <div class="col-md-6 col-9">
+                                    <h6 class="mb-1">Apple MacBook Air M4</h6>
+                                    <p class="text-muted mb-1">Order #LP001235</p>
+                                    <small class="text-muted">Ordered on July 30, 2025</small>
+                                </div>
+                                <div class="col-md-2 col-6 mt-2 mt-md-0">
+                                    <span class="status-badge status-pending">Processing</span>
+                                </div>
+                                <div class="col-md-2 col-6 mt-2 mt-md-0 text-end">
+                                    <p class="mb-0 fw-bold">₹90,990</p>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('LP001235')">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Item 3 -->
+                        <div class="order-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-3">
+                                    <img src="https://via.placeholder.com/60x60/fd79a8/ffffff?text=DL" alt="Dell"
+                                        class="product-img">
+                                </div>
+                                <div class="col-md-6 col-9">
+                                    <h6 class="mb-1">DELL Inspiron 15 MSO'24</h6>
+                                    <p class="text-muted mb-1">Order #LP001236</p>
+                                    <small class="text-muted">Ordered on August 1, 2025</small>
+                                </div>
+                                <div class="col-md-2 col-6 mt-2 mt-md-0">
+                                    <span class="status-badge status-pending">Confirmed</span>
+                                </div>
+                                <div class="col-md-2 col-6 mt-2 mt-md-0 text-end">
+                                    <p class="mb-0 fw-bold">₹67,990</p>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('LP001236')">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order History -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-history me-2"></i>Order History</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#LP001233</td>
+                                        <td>Jul 20, 2025</td>
+                                        <td>2 items</td>
+                                        <td>₹1,25,000</td>
+                                        <td><span class="status-badge status-delivered">Delivered</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#LP001232</td>
+                                        <td>Jul 15, 2025</td>
+                                        <td>1 item</td>
+                                        <td>₹89,990</td>
+                                        <td><span class="status-badge status-delivered">Delivered</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#LP001231</td>
+                                        <td>Jun 28, 2025</td>
+                                        <td>1 item</td>
+                                        <td>₹45,000</td>
+                                        <td><span class="status-badge status-cancelled">Cancelled</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <!-- Change Password Modal -->
+        <div class="modal fade" id="changePasswordModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="passwordForm">
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="currentPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="updatePassword()">Update
+                            Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancel Order Modal -->
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cancel Order</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to cancel order <strong id="cancelOrderId"></strong>?</p>
+                        <div class="mb-3">
+                            <label class="form-label">Reason for cancellation:</label>
+                            <select class="form-control" id="cancelReason">
+                                <option value="">Select a reason</option>
+                                <option value="changed_mind">Changed my mind</option>
+                                <option value="found_better_price">Found better price elsewhere</option>
+                                <option value="delivery_delay">Delivery taking too long</option>
+                                <option value="ordered_by_mistake">Ordered by mistake</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
+                        <button type="button" class="btn btn-danger" onclick="confirmCancelOrder()">Cancel
+                            Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let editingProfile = false;
+            let editingAddress = false;
+            let currentCancelOrderId = null;
+
+            function toggleEditMode() {
+                editingProfile = !editingProfile;
+                const viewMode = document.getElementById('viewMode');
+                const editMode = document.getElementById('editMode');
+
+                if (editingProfile) {
+                    viewMode.style.display = 'none';
+                    editMode.style.display = 'block';
+                } else {
+                    viewMode.style.display = 'block';
+                    editMode.style.display = 'none';
+                }
+            }
+
+            function saveProfile() {
+                const name = document.getElementById('editName').value;
+                const email = document.getElementById('editEmail').value;
+                const phone = document.getElementById('editPhone').value;
+                const dob = document.getElementById('editDob').value;
+
+                // Update display values
+                document.getElementById('viewName').textContent = name;
+                document.getElementById('viewEmail').textContent = email;
+                document.getElementById('viewPhone').textContent = phone;
+                document.getElementById('viewDob').textContent = new Date(dob).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Update header
+                document.getElementById('displayName').textContent = name;
+                document.getElementById('displayEmail').textContent = email;
+
+                toggleEditMode();
+                showAlert('Profile updated successfully!', 'success');
+            }
+
+            function cancelEdit() {
+                // Reset form values
+                document.getElementById('editName').value = document.getElementById('viewName').textContent;
+                document.getElementById('editEmail').value = document.getElementById('viewEmail').textContent;
+                document.getElementById('editPhone').value = document.getElementById('viewPhone').textContent;
+
+                toggleEditMode();
+            }
+
+            function editAddress() {
+                editingAddress = !editingAddress;
+                const addressView = document.getElementById('addressView');
+                const addressEdit = document.getElementById('addressEdit');
+
+                if (editingAddress) {
+                    addressView.style.display = 'none';
+                    addressEdit.style.display = 'block';
+                } else {
+                    addressView.style.display = 'block';
+                    addressEdit.style.display = 'none';
+                }
+            }
+
+            function saveAddress() {
+                const address1 = document.getElementById('address1').value;
+                const city = document.getElementById('city').value;
+                const state = document.getElementById('state').value;
+                const pincode = document.getElementById('pincode').value;
+
+                editAddress();
+                showAlert('Address updated successfully!', 'success');
+            }
+
+            function cancelAddressEdit() {
+                editAddress();
+            }
+
+            function changePassword() {
+                const modal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                modal.show();
+            }
+
+            function updatePassword() {
+                const current = document.getElementById('currentPassword').value;
+                const newPass = document.getElementById('newPassword').value;
+                const confirm = document.getElementById('confirmPassword').value;
+
+                if (!current || !newPass || !confirm) {
+                    showAlert('Please fill all password fields', 'danger');
+                    return;
+                }
+
+                if (newPass !== confirm) {
+                    showAlert('New passwords do not match', 'danger');
+                    return;
+                }
+
+                if (newPass.length < 6) {
+                    showAlert('Password must be at least 6 characters long', 'danger');
+                    return;
+                }
+
+                // Close modal and show success
+                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                showAlert('Password updated successfully!', 'success');
+
+                // Clear form
+                document.getElementById('passwordForm').reset();
+            }
+
+            function forgotPassword() {
+                showAlert('Password reset link sent to your email!', 'info');
+            }
+
+            function deleteAccount() {
+                if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                    showAlert('Account deletion request submitted. You will receive an email confirmation.', 'warning');
+                }
+            }
+
+            function trackOrder(orderId) {
+                showAlert(`Tracking information for order ${orderId} will be displayed here.`, 'info');
+            }
+
+            function cancelOrder(orderId) {
+                currentCancelOrderId = orderId;
+                document.getElementById('cancelOrderId').textContent = orderId;
+                const modal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+                modal.show();
+            }
+
+            function confirmCancelOrder() {
+                const reason = document.getElementById('cancelReason').value;
+
+                if (!reason) {
+                    showAlert('Please select a reason for cancellation', 'danger');
+                    return;
+                }
+
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('cancelOrderModal')).hide();
+
+                // Update order status in UI
+                const orderElements = document.querySelectorAll('.order-item');
+                orderElements.forEach(orderElement => {
+                    const orderIdElement = orderElement.querySelector('.text-muted');
+                    if (orderIdElement && orderIdElement.textContent.includes(currentCancelOrderId)) {
+                        const statusBadge = orderElement.querySelector('.status-badge');
+                        statusBadge.className = 'status-badge status-cancelled';
+                        statusBadge.textContent = 'Cancelled';
+
+                        const actionButton = orderElement.querySelector('.btn-outline-danger');
+                        if (actionButton) {
+                            actionButton.style.display = 'none';
+                        }
+                    }
+                });
+
+                showAlert(`Order ${currentCancelOrderId} has been cancelled successfully.`, 'success');
+
+                // Clear form
+                document.getElementById('cancelReason').value = '';
+                currentCancelOrderId = null;
+            }
+
+            // Alert system
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlert = document.querySelector('.alert');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+
+                const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${getAlertIcon(type)} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+                // Insert alert at the top of the container
+                const container = document.querySelector('.container');
+                container.insertAdjacentHTML('afterbegin', alertHTML);
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    const alert = document.querySelector('.alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+
+            function getAlertIcon(type) {
+                switch (type) {
+                    case 'success': return 'check-circle';
+                    case 'danger': return 'exclamation-triangle';
+                    case 'warning': return 'exclamation-circle';
+                    case 'info': return 'info-circle';
+                    default: return 'info-circle';
+                }
+            }
+
+            // Additional functionality for enhanced user experience
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initialize tooltips if any
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+
+                // Add click handlers for navigation
+                document.querySelector('.navbar-brand').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = 'index.html';
+                });
+
+                // Add confirmation for account deletion
+                const deleteBtn = document.querySelector('[onclick="deleteAccount()"]');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        deleteAccount();
+                    });
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function (e) {
+                // Escape key to close modals
+                if (e.key === 'Escape') {
+                    const openModal = document.querySelector('.modal.show');
+                    if (openModal) {
+                        const modalInstance = bootstrap.Modal.getInstance(openModal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    }
+                }
+            });
+
+            // Form validation helpers
+            function validateEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            function validatePhone(phone) {
+                const phoneRegex = /^\+91\s[0-9]{10}$/;
+                return phoneRegex.test(phone);
+            }
+
+            // Enhanced profile editing with validation
+            function saveProfileWithValidation() {
+                const name = document.getElementById('editName').value.trim();
+                const email = document.getElementById('editEmail').value.trim();
+                const phone = document.getElementById('editPhone').value.trim();
+
+                // Validation
+                if (!name) {
+                    showAlert('Please enter a valid name', 'danger');
+                    return;
+                }
+
+                if (!validateEmail(email)) {
+                    showAlert('Please enter a valid email address', 'danger');
+                    return;
+                }
+
+                if (!validatePhone(phone)) {
+                    showAlert('Please enter a valid phone number (+91 followed by 10 digits)', 'danger');
+                    return;
+                }
+
+                saveProfile();
+            }
+
+            // Order management functions
+            function viewOrderDetails(orderId) {
+                showAlert(`Viewing details for order ${orderId}`, 'info');
+                // In a real application, this would navigate to order details page
+            }
+
+            function reorderItem(orderId) {
+                if (confirm('Add this item to cart again?')) {
+                    showAlert(`Items from order ${orderId} added to cart!`, 'success');
+                }
+            }
+
+            function downloadInvoice(orderId) {
+                showAlert(`Downloading invoice for order ${orderId}...`, 'info');
+                // In a real application, this would trigger file download
+            }
+
+            // Search functionality for orders
+            function searchOrders() {
+                const searchTerm = prompt('Enter order ID or product name to search:');
+                if (searchTerm) {
+                    showAlert(`Searching for: ${searchTerm}`, 'info');
+                    // In a real application, this would filter the orders
+                }
+            }
+
+            // Export order history
+            function exportOrderHistory() {
+                if (confirm('Export order history as CSV?')) {
+                    showAlert('Order history exported successfully!', 'success');
+                    // In a real application, this would generate and download CSV
+                }
+            }
+        </script>
+        <%-include("../../views/parsuals/user/footer")%>

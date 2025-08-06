@@ -85,9 +85,21 @@ const userSchema = new Schema({
     },
     resetPasswordExpires: {
         type: Date
+    },
+    profileImage: {
+        type: String,
+        default: null
+    },
+    dateOfBirth: {
+        type:Date,
+        required: false
+    },
+    gender: {
+        type : String,
+        required: false
     }
 });
 
-const User = mongoose.model('User',userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
